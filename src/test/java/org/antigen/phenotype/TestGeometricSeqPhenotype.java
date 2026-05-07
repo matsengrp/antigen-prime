@@ -168,11 +168,24 @@ public class TestGeometricSeqPhenotype {
     // lowEpitopeMutationCount, highEpitopeMutationCount
     assertEquals("TGCATC, 0.0000, 0.0000, 0, 0, 0, 0", simplePheno.toString());
 
-    // Check that String representation changes after mutation.
+    // Check that String representation changes after mutation (sequence always updates).
     assertNotEquals("TGCATC, 0.0000, 0.0000, 0, 0, 0, 0", simplePheno.mutate().toString());
-    // traitA and traitB are not deterministic.
-    // E should be 0 and nE should be 1
-    assertTrue(simplePheno.mutate().toString().contains(", 0, 1, "));
+
+    // No epitope sites are defined in this test setup, so E is always 0.
+    // Non-synonymous mutations increment nE to 1; synonymous mutations leave it at 0.
+    // Retry until we observe a non-synonymous mutation to verify the counting logic.
+    boolean foundNonSynonymous = false;
+    for (int attempt = 0; attempt < 50; attempt++) {
+      GeometricSeqPhenotype mutated = (GeometricSeqPhenotype) simplePheno.mutate();
+      assertEquals(0, mutated.getEpitopeMutationCount());
+      int nE = mutated.getNonEpitopeMutationCount();
+      assertTrue(nE == 0 || nE == 1);
+      if (nE == 1) {
+        foundNonSynonymous = true;
+        break;
+      }
+    }
+    assertTrue("Expected at least one non-synonymous mutation in 50 attempts", foundNonSynonymous);
   }
 
   /** Test that all 64 codons are accounted for and corresponds to the correct amino acid. */

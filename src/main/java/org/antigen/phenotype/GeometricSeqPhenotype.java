@@ -249,12 +249,6 @@ public class GeometricSeqPhenotype extends GeometricPhenotype {
       mutantAminoAcid = wildTypeMutantAminoAcids[1];
     }
 
-    // Make a copy of the nucleotide sequence, since Java uses references for arrays
-    char[] copyNucleotideSequence =
-        Arrays.copyOf(this.nucleotideSequence, Parameters.startingSequence.length());
-    // Update the virus's nucleotide sequence by introducing the mutation from above
-    copyNucleotideSequence[nucleotideMutationIndex] = mutantNucleotide;
-
     // site # where mutation is occurring {0, . . ., total number of sites - 1}
     int proteinMutationIndex = nucleotideMutationIndex / 3;
     boolean isEpitopeSite =
@@ -264,19 +258,24 @@ public class GeometricSeqPhenotype extends GeometricPhenotype {
     boolean isEpitopeSiteHigh =
         Biology.SiteMutationVectors.VECTORS.getEpitopeSitesHigh().contains(proteinMutationIndex);
 
-    // Synonymous mutations don't change counts or antigenic space, return early
+    // Synonymous mutations don't change counts or antigenic space; allocate copy and return early.
+    // Bypass the acceptance/rejection filter — synonymous mutations are always accepted.
     if (wildTypeAminoAcid.equals(mutantAminoAcid)) {
+      char[] synonymousCopy =
+          Arrays.copyOf(this.nucleotideSequence, Parameters.startingSequence.length());
+      synonymousCopy[nucleotideMutationIndex] = mutantNucleotide;
       return new GeometricSeqPhenotype(
           getTraitA(),
           getTraitB(),
-          copyNucleotideSequence,
+          synonymousCopy,
           this.epitopeMutationCount,
           this.nonepitopeMutationCount,
           this.lowEpitopeMutationCount,
           this.highEpitopeMutationCount);
     }
 
-    // Apply acceptance/rejection filter based on site type
+    // Non-synonymous: apply acceptance/rejection filter BEFORE allocating the sequence copy,
+    // so rejected mutations (80% of non-epitope) never pay the Arrays.copyOf cost.
     double rejectionProb = Random.nextDouble(); // Uniform draw from 0.0 to 1.0
     if (isEpitopeSite) {
       if (rejectionProb > Parameters.epitopeAcceptance) {
@@ -287,6 +286,11 @@ public class GeometricSeqPhenotype extends GeometricPhenotype {
         return this;
       }
     }
+
+    // Mutation accepted: allocate the sequence copy only now
+    char[] copyNucleotideSequence =
+        Arrays.copyOf(this.nucleotideSequence, Parameters.startingSequence.length());
+    copyNucleotideSequence[nucleotideMutationIndex] = mutantNucleotide;
 
     // Update counts only for non-synonymous mutations
     int eMutationNew = this.epitopeMutationCount;
@@ -308,22 +312,15 @@ public class GeometricSeqPhenotype extends GeometricPhenotype {
     // Determine how much to move the x and y coordinates of the virus in antigenic space
     Biology.MutationVector vector;
     if (Parameters.predefinedVectors) {
-      // Move using predefined vectors
       vector =
           getAntigenicPhenotypeUpdate(proteinMutationIndex, wildTypeAminoAcid, mutantAminoAcid);
     } else {
-      // Move using random vectors
-      // Note, reversions will not be taken into account
       vector =
           Biology.MutationVector.calculateMutation(
               isEpitopeSite, isEpitopeSiteLow, isEpitopeSiteHigh);
     }
 
     checkRep();
-    // Update the virus's location in antigenic space upon a mutation by taking the
-    // vector giving the virus's current location (getTraitA() and getTraitB())
-    // and then summing it with a precomputed or random vector (vector.mutA and vector.mutB)
-    // that gives the antigenic effect of the mutation.
     return new GeometricSeqPhenotype(
         getTraitA() + vector.mutA,
         getTraitB() + vector.mutB,
