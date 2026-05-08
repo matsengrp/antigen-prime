@@ -1,5 +1,11 @@
 # antigen-prime: Simulating coupled genetic and antigenic evolution of influenza virus
 
+[![Tests](https://github.com/matsengrp/antigen-prime/actions/workflows/test.yml/badge.svg)](https://github.com/matsengrp/antigen-prime/actions/workflows/test.yml)
+[![Deploy Docs](https://github.com/matsengrp/antigen-prime/actions/workflows/docs.yml/badge.svg)](https://github.com/matsengrp/antigen-prime/actions/workflows/docs.yml)
+[![License: GPL v3](https://img.shields.io/badge/license-GPL%20v3-blue.svg)](LICENSE)
+[![Java 11+](https://img.shields.io/badge/java-11%2B-orange.svg)](https://adoptium.net/)
+[![Docs](https://img.shields.io/badge/docs-mkdocs-teal.svg)](https://matsengrp.github.io/antigen-prime/)
+
 Antigen implements an SIR epidemiological model where hosts in a population are infected with
 viruses that have distinct antigenic phenotypes.  Hosts make contacts transmitting viruses and also
 recover from infection.  After recovery, a host remembers the antigenic phenotype it was infected
