@@ -378,8 +378,8 @@ public class HostPopulation {
           infecteds.add(sH);
           cases++;
         }
-        // If there is not fitness, assign now.
-        if (v.getFitness() == 0.0) {
+        // Fitness is only needed post-burnin when viruses are sampled into the tree.
+        if (v.getFitness() == 0.0 && Parameters.day >= Parameters.burnin) {
           double averageRisk = getAverageRisk(p);
           double seasonality = Parameters.getSeasonality(deme);
           double probSusceptible = getPrS();
@@ -426,7 +426,7 @@ public class HostPopulation {
           infecteds.add(sH);
           cases++;
         }
-        if (v.getFitness() == 0.0) {
+        if (v.getFitness() == 0.0 && Parameters.day >= Parameters.burnin) {
           double averageRisk = getAverageRisk(p);
           double seasonality = Parameters.getSeasonality(deme);
           double probSusceptible = getPrS();
