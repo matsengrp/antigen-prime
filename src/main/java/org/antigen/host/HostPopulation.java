@@ -426,6 +426,17 @@ public class HostPopulation {
           infecteds.add(sH);
           cases++;
         }
+        if (v.getFitness() == 0.0) {
+          double averageRisk = getAverageRisk(p);
+          double seasonality = Parameters.getSeasonality(deme);
+          double probSusceptible = getPrS();
+          double seasonalFitness = averageRisk * seasonality * probSusceptible;
+
+          v.setAverageInfectionRisk(averageRisk);
+          v.setDemeSeasonality(seasonality);
+          v.setProbSusceptible(probSusceptible);
+          v.setFitness(seasonalFitness);
+        }
       }
     }
   }
