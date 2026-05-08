@@ -8,14 +8,16 @@ This guide explains all parameters available in antigen-prime, organized by func
 
 | Parameter | Default | Description |
 |-----------|---------|-------------|
-| `burnin` | 0 | Days to wait before logging output (allows system to reach equilibrium) |
+| `burnin` | 0 | Days before logging output and fitness computation (allows system to reach equilibrium) |
 | `endDay` | 5000 | Total number of days to simulate |
 | `deltaT` | 0.1 | Time step size in days (0.1 = 2.4 hours per step) |
 | `printStep` | 10 | Output frequency - write to timeseries every N days |
 | `repeatSim` | true | Whether to repeat simulation until endDay is reached if population dies out |
 
 **Usage Notes:**
-- Use `burnin > 0` to exclude initial transient dynamics from output
+- Use `burnin > 0` to exclude initial transient dynamics from output; internal-node fitness (`getAverageRisk`) is also skipped during burnin, reducing computation cost
+- When `burnin == 0` fitness computation proceeds immediately (identical to pre-burnin behavior)
+- Host immunity sampling (`sampleHostImmunity`) also respects `burnin`: no immunity output is written until `day >= burnin`, and the `year` column in `out.histories.csv` is burn-in-adjusted (`year = 0.0` at end of burnin)
 - Smaller `deltaT` gives more accurate results but increases computation time
 - `printStep` affects file size - smaller values create larger output files
 

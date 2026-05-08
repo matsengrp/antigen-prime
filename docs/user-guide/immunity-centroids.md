@@ -14,9 +14,13 @@ Each host maintains an immune history from previous infections. The immunity cen
 | `printHostImmunityStep` | 365 | Sampling interval in days |
 | `hostImmunitySamplesPerDeme` | [10000, 10000, 10000] | Hosts sampled per deme |
 
+## Burn-in Behavior
+
+Immunity sampling respects the `burnin` parameter. No output is written until `day >= burnin`, matching the behavior of virus tip sampling. The `year` column in `out.histories.csv` is burn-in-adjusted: `year = (day - burnin) / 365.0`, so `year = 0.0` corresponds to the end of burn-in.
+
 ## Output Files
 
-When `sampleHostImmunity: true`, antigen-prime writes two files on each `printHostImmunityStep` interval from the **same sampled hosts**:
+When `sampleHostImmunity: true`, antigen-prime writes two files on each `printHostImmunityStep` interval (post-burnin) from the **same sampled hosts**:
 
 - **`out.histories.csv`** — per-deme and global centroids (described below)
 - **`out.histories`** — full immune history coordinates for every sampled host, grouped by deme; useful for reviewing the raw data behind the centroids
