@@ -124,7 +124,7 @@ public class Host {
   }
 
   // returns the 2D coordinates of the most recent infection, or null if naive
-  public double[] getImmunityCoordinatesCentroid() {
+  public double[] getMostRecentInfectionCoordinates() {
     if (immuneHistory.length == 0) {
       return null;
     }

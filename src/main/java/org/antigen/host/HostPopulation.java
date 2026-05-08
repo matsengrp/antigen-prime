@@ -686,7 +686,7 @@ public class HostPopulation {
     int naiveHosts = 0;
 
     for (Host h : hosts) {
-      double[] coords = h.getImmunityCoordinatesCentroid();
+      double[] coords = h.getMostRecentInfectionCoordinates();
       if (coords == null) {
         naiveHosts++;
       } else {

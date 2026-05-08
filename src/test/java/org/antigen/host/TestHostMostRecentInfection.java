@@ -20,7 +20,7 @@ public class TestHostMostRecentInfection {
   @Test
   public void testNaiveHostCentroid() {
     Host host = new Host();
-    double[] centroid = host.getImmunityCoordinatesCentroid();
+    double[] centroid = host.getMostRecentInfectionCoordinates();
     assertNull("Naive host should return null centroid", centroid);
   }
 
@@ -30,7 +30,7 @@ public class TestHostMostRecentInfection {
     GeometricPhenotype phenotype = new GeometricPhenotype(2.0, 3.0);
     host.addToHistory(phenotype);
 
-    double[] mostRecent = host.getImmunityCoordinatesCentroid();
+    double[] mostRecent = host.getMostRecentInfectionCoordinates();
     assertNotNull(mostRecent);
     assertEquals(2.0, mostRecent[0], 1e-10);
     assertEquals(3.0, mostRecent[1], 1e-10);
@@ -42,7 +42,7 @@ public class TestHostMostRecentInfection {
     host.addToHistory(new GeometricPhenotype(1.0, 2.0));
     host.addToHistory(new GeometricPhenotype(3.0, 4.0));
 
-    double[] mostRecent = host.getImmunityCoordinatesCentroid();
+    double[] mostRecent = host.getMostRecentInfectionCoordinates();
     assertNotNull(mostRecent);
     assertEquals(3.0, mostRecent[0], 1e-10);
     assertEquals(4.0, mostRecent[1], 1e-10);
@@ -54,7 +54,7 @@ public class TestHostMostRecentInfection {
     GeometricSeqPhenotype phenotype = new GeometricSeqPhenotype(5.0, 7.0);
     host.addToHistory(phenotype);
 
-    double[] centroid = host.getImmunityCoordinatesCentroid();
+    double[] centroid = host.getMostRecentInfectionCoordinates();
     assertNotNull(centroid);
     assertEquals(5.0, centroid[0], 1e-10);
     assertEquals(7.0, centroid[1], 1e-10);
@@ -66,7 +66,7 @@ public class TestHostMostRecentInfection {
     host.addToHistory(new GeometricPhenotype(2.0, 4.0));
     host.addToHistory(new GeometricSeqPhenotype(6.0, 8.0));
 
-    double[] mostRecent = host.getImmunityCoordinatesCentroid();
+    double[] mostRecent = host.getMostRecentInfectionCoordinates();
     assertNotNull(mostRecent);
     assertEquals(6.0, mostRecent[0], 1e-10);
     assertEquals(8.0, mostRecent[1], 1e-10);
@@ -79,7 +79,7 @@ public class TestHostMostRecentInfection {
     host.addToHistory(new GeometricPhenotype(5.0, 5.0));
     host.addToHistory(new GeometricPhenotype(9.0, 9.0));
 
-    double[] mostRecent = host.getImmunityCoordinatesCentroid();
+    double[] mostRecent = host.getMostRecentInfectionCoordinates();
     assertNotNull(mostRecent);
     assertEquals(9.0, mostRecent[0], 1e-10);
     assertEquals(9.0, mostRecent[1], 1e-10);
