@@ -15,6 +15,9 @@ public interface Phenotype {
   // compare phenotypes and report antigenic distance
   double distance(Phenotype p);
 
+  // 2D antigenic coordinates as {traitA, traitB}
+  double[] getCoordinates();
+
   // this is used in output, should be a short string form
   // 2D: 0.5,0.6
   // sequence: "ATGCGCC"

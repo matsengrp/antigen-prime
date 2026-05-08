@@ -107,6 +107,10 @@ public class GeometricPhenotype3D implements Phenotype {
     return mutP;
   }
 
+  public double[] getCoordinates() {
+    return new double[] {getTraitA(), getTraitB()};
+  }
+
   public String toString() {
     String fullString = String.format("%.4f,%.4f,%.4f", traitA, traitB, traitC);
     return fullString;

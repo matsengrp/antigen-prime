@@ -216,12 +216,60 @@ public class Simulation {
     }
   }
 
-  public void printHostImmuneHistories(PrintStream historyStream) {
-    // For each deme, print the name, and the immune histories of hosts
+  public void writeImmunityOutputs(
+      PrintStream csvStream, PrintStream rawStream, boolean writeHeader) {
+    if (writeHeader) {
+      csvStream.println("year,deme,ag1,ag2,naive_fraction,experienced_hosts");
+    }
+    double year = Parameters.day / 365.0;
+    double globalSumAg1 = 0.0;
+    double globalSumAg2 = 0.0;
+    int globalExperiencedHosts = 0;
+    int globalTotalSamples = 0;
+
     for (int i = 0; i < Parameters.demeCount; i++) {
+      int nSamples = Parameters.hostImmunitySamplesPerDeme[i];
+      if (nSamples == 0) continue;
       HostPopulation hp = demes.get(i);
-      int n = Parameters.hostImmunitySamplesPerDeme[i];
-      hp.printHostImmuneHistories(historyStream, n);
+      List<Host> sampled = hp.sampleHosts(nSamples);
+      ImmunitySummary summary = hp.getPopulationImmunitySummary(sampled);
+      hp.printHostImmuneHistories(rawStream, sampled);
+
+      if (summary.hasValidCentroid()) {
+        csvStream.printf(
+            "%.4f,%s,%.6f,%.6f,%.4f,%d%n",
+            year,
+            Parameters.demeNames[i],
+            summary.getCentroid()[0],
+            summary.getCentroid()[1],
+            summary.getNaiveFraction(),
+            summary.getExperiencedHosts());
+        globalSumAg1 += summary.getCentroid()[0] * summary.getExperiencedHosts();
+        globalSumAg2 += summary.getCentroid()[1] * summary.getExperiencedHosts();
+      } else {
+        csvStream.printf(
+            "%.4f,%s,NaN,NaN,%.4f,%d%n",
+            year,
+            Parameters.demeNames[i],
+            summary.getNaiveFraction(),
+            summary.getExperiencedHosts());
+      }
+      globalExperiencedHosts += summary.getExperiencedHosts();
+      globalTotalSamples += summary.getTotalSampled();
+    }
+
+    if (globalTotalSamples > 0) {
+      if (globalExperiencedHosts > 0) {
+        csvStream.printf(
+            "%.4f,global,%.6f,%.6f,%.4f,%d%n",
+            year,
+            globalSumAg1 / globalExperiencedHosts,
+            globalSumAg2 / globalExperiencedHosts,
+            1.0 - (double) globalExperiencedHosts / globalTotalSamples,
+            globalExperiencedHosts);
+      } else {
+        csvStream.printf("%.4f,global,NaN,NaN,1.0000,%d%n", year, 0);
+      }
     }
   }
 
@@ -416,10 +464,15 @@ public class Simulation {
 
       File outDirs = new File(Parameters.outPath);
       outDirs.mkdirs();
-      File historyFile = new File("out.histories");
-      historyFile.delete();
-      historyFile.createNewFile();
-      PrintStream historyStream = new PrintStream(historyFile);
+      File historyCsvFile = new File("out.histories.csv");
+      historyCsvFile.delete();
+      historyCsvFile.createNewFile();
+      PrintStream historyCsvStream = new PrintStream(historyCsvFile);
+      File historyRawFile = new File("out.histories");
+      historyRawFile.delete();
+      historyRawFile.createNewFile();
+      PrintStream historyRawStream = new PrintStream(historyRawFile);
+      boolean historiesHeaderWritten = false;
       File seriesFile = new File("out.timeseries");
       seriesFile.delete();
       seriesFile.createNewFile();
@@ -443,9 +496,8 @@ public class Simulation {
         // print immunity if needed
         if (Parameters.sampleHostImmunity
             && Parameters.day % (double) Parameters.printHostImmunityStep < Parameters.deltaT) {
-          // Test print
-          historyStream.printf("date:\t" + "%.2f\n", Parameters.day);
-          printHostImmuneHistories(historyStream);
+          writeImmunityOutputs(historyCsvStream, historyRawStream, !historiesHeaderWritten);
+          historiesHeaderWritten = true;
         }
 
         if (getI() == 0) {
@@ -464,7 +516,8 @@ public class Simulation {
       }
 
       seriesStream.close();
-      historyStream.close();
+      historyCsvStream.close();
+      historyRawStream.close();
 
       writeDataCSV();
     } catch (IOException ex) {

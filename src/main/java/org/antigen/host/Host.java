@@ -123,6 +123,14 @@ public class Host {
     return immuneHistory;
   }
 
+  // returns the 2D coordinates of the most recent infection, or null if naive
+  public double[] getMostRecentInfectionCoordinates() {
+    if (immuneHistory.length == 0) {
+      return null;
+    }
+    return immuneHistory[immuneHistory.length - 1].getCoordinates();
+  }
+
   public void printHistoryCoordinates(PrintStream stream) {
     for (Phenotype phenotype : immuneHistory) {
       // get traitA and traitB from phenotype
