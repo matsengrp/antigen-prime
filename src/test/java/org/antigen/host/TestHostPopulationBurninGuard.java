@@ -47,8 +47,7 @@ public class TestHostPopulationBurninGuard {
     hp.recordContacts();
     hp.distributeContacts();
 
-    assertEquals(
-        "Fitness should not be assigned during burnin", 0.0, infector.getFitness(), 0.0);
+    assertEquals("Fitness should not be assigned during burnin", 0.0, infector.getFitness(), 0.0);
   }
 
   /** Fitness MUST be set on a virus post-burnin (day == burnin boundary). */
