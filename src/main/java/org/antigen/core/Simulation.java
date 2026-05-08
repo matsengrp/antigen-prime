@@ -221,7 +221,7 @@ public class Simulation {
     if (writeHeader) {
       csvStream.println("year,deme,ag1,ag2,naive_fraction,experienced_hosts");
     }
-    double year = Parameters.day / 365.0;
+    double year = Parameters.getDate();
     double globalSumAg1 = 0.0;
     double globalSumAg2 = 0.0;
     int globalExperiencedHosts = 0;
@@ -495,6 +495,7 @@ public class Simulation {
 
         // print immunity if needed
         if (Parameters.sampleHostImmunity
+            && Parameters.day >= Parameters.burnin
             && Parameters.day % (double) Parameters.printHostImmunityStep < Parameters.deltaT) {
           writeImmunityOutputs(historyCsvStream, historyRawStream, !historiesHeaderWritten);
           historiesHeaderWritten = true;
