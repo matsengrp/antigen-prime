@@ -671,9 +671,10 @@ public class HostPopulation {
     List<Host> result = new ArrayList<>(n);
     for (int i = 0; i < n; i++) {
       Host h = null;
-      while (h == null) {
+      while (h == null && getN() > 0) {
         h = getRandomHost();
       }
+      if (h == null) break; // population emptied mid-sampling
       result.add(h);
     }
     return result;

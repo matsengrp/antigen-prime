@@ -258,16 +258,18 @@ public class Simulation {
       globalTotalSamples += summary.getTotalSampled();
     }
 
-    if (globalExperiencedHosts > 0) {
-      csvStream.printf(
-          "%.4f,global,%.6f,%.6f,%.4f,%d%n",
-          year,
-          globalSumAg1 / globalExperiencedHosts,
-          globalSumAg2 / globalExperiencedHosts,
-          1.0 - (double) globalExperiencedHosts / globalTotalSamples,
-          globalExperiencedHosts);
-    } else {
-      csvStream.printf("%.4f,global,NaN,NaN,1.0000,%d%n", year, 0);
+    if (globalTotalSamples > 0) {
+      if (globalExperiencedHosts > 0) {
+        csvStream.printf(
+            "%.4f,global,%.6f,%.6f,%.4f,%d%n",
+            year,
+            globalSumAg1 / globalExperiencedHosts,
+            globalSumAg2 / globalExperiencedHosts,
+            1.0 - (double) globalExperiencedHosts / globalTotalSamples,
+            globalExperiencedHosts);
+      } else {
+        csvStream.printf("%.4f,global,NaN,NaN,1.0000,%d%n", year, 0);
+      }
     }
   }
 
