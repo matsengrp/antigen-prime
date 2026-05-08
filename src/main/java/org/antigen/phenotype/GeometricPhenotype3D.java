@@ -108,7 +108,7 @@ public class GeometricPhenotype3D implements Phenotype {
   }
 
   public double[] getCoordinates() {
-    return new double[] {traitA, traitB};
+    return new double[] {getTraitA(), getTraitB()};
   }
 
   public String toString() {

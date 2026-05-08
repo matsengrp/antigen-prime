@@ -14,14 +14,19 @@ Each host maintains an immune history from previous infections. The immunity cen
 | `printHostImmunityStep` | 365 | Sampling interval in days |
 | `hostImmunitySamplesPerDeme` | [10000, 10000, 10000] | Hosts sampled per deme |
 
-## Output File: `out.histories.csv`
+## Output Files
 
-When `sampleHostImmunity: true`, antigen-prime outputs `out.histories.csv` with columns:
+When `sampleHostImmunity: true`, antigen-prime writes two files on each `printHostImmunityStep` interval from the **same sampled hosts**:
+
+- **`out.histories.csv`** — per-deme and global centroids (described below)
+- **`out.histories`** — full immune history coordinates for every sampled host, grouped by deme; useful for reviewing the raw data behind the centroids
+
+### `out.histories.csv` columns
 
 | Column | Description |
 |--------|-------------|
 | `year` | Simulation time in years |
-| `deme` | Geographic deme name or "total" for global |
+| `deme` | Geographic deme name or "global" for global aggregate |
 | `ag1` | Centroid x-coordinate in antigenic space |
 | `ag2` | Centroid y-coordinate in antigenic space |
 | `naive_fraction` | Fraction of sampled hosts with no immune history |
@@ -33,7 +38,7 @@ year,deme,ag1,ag2,naive_fraction,experienced_hosts
 0.0000,north,-6.000000,0.000000,0.4981,5019
 0.0000,tropics,-6.000000,0.000000,0.4968,5032
 0.0000,south,-6.000000,0.000000,0.5070,4930
-0.0000,total,-6.000000,0.000000,0.5006,14981
+0.0000,global,-6.000000,0.000000,0.5006,14981
 1.0000,north,-2.537124,-0.014044,0.2117,7883
 ```
 
@@ -51,7 +56,7 @@ Where:
 - $n_{exp}$ = number of experienced (non-naive) hosts
 - $h_i^{(\text{recent})}$ = antigenic coordinates of host $i$'s most recent infection
 
-The global ("total") centroid is computed as a weighted average across demes, weighted by number of experienced hosts.
+The global (`global`) centroid is computed as a weighted average across demes, weighted by number of experienced hosts.
 
 ## Using Centroids for Fitness Calculation
 

@@ -666,14 +666,26 @@ public class HostPopulation {
     }
   }
 
-  public ImmunitySummary getPopulationImmunitySummary(int n) {
+  public List<Host> sampleHosts(int n) {
+    if (n == 0 || getN() == 0) return Collections.emptyList();
+    List<Host> result = new ArrayList<>(n);
+    for (int i = 0; i < n; i++) {
+      Host h = null;
+      while (h == null) {
+        h = getRandomHost();
+      }
+      result.add(h);
+    }
+    return result;
+  }
+
+  public ImmunitySummary getPopulationImmunitySummary(List<Host> hosts) {
     double sumTraitA = 0.0;
     double sumTraitB = 0.0;
     int experiencedHosts = 0;
     int naiveHosts = 0;
 
-    for (int i = 0; i < n; i++) {
-      Host h = getRandomHost();
+    for (Host h : hosts) {
       double[] coords = h.getImmunityCoordinatesCentroid();
       if (coords == null) {
         naiveHosts++;
@@ -684,24 +696,29 @@ public class HostPopulation {
       }
     }
 
+    int n = hosts.size();
     double[] avgCentroid =
         experiencedHosts > 0
             ? new double[] {sumTraitA / experiencedHosts, sumTraitB / experiencedHosts}
             : new double[] {Double.NaN, Double.NaN};
-
-    double naiveFraction = (double) naiveHosts / n;
+    double naiveFraction = n > 0 ? (double) naiveHosts / n : Double.NaN;
     return new ImmunitySummary(avgCentroid, naiveFraction, n, experiencedHosts);
   }
 
-  public void printHostImmuneHistories(PrintStream stream, int n) {
-    // first, print the contact rate
-    stream.printf("contactRate:\t" + "%.4f\n", contactRate);
-    // grab n random hosts and print their immune histories
-    for (int i = 0; i < n; i++) {
-      Host h = getRandomHost();
+  public ImmunitySummary getPopulationImmunitySummary(int n) {
+    return getPopulationImmunitySummary(sampleHosts(n));
+  }
+
+  public void printHostImmuneHistories(PrintStream stream, List<Host> hosts) {
+    stream.printf("contactRate:\t%.4f\n", contactRate);
+    for (Host h : hosts) {
       stream.print(name + ":");
       h.printHistoryCoordinates(stream);
     }
+  }
+
+  public void printHostImmuneHistories(PrintStream stream, int n) {
+    printHostImmuneHistories(stream, sampleHosts(n));
   }
 
   public void printHostPopulation(PrintStream stream) {
