@@ -426,6 +426,17 @@ public class HostPopulation {
           infecteds.add(sH);
           cases++;
         }
+        if (v.getFitness() == 0.0) {
+          double averageRisk = getAverageRisk(p);
+          double seasonality = Parameters.getSeasonality(deme);
+          double probSusceptible = getPrS();
+          double seasonalFitness = averageRisk * seasonality * probSusceptible;
+
+          v.setAverageInfectionRisk(averageRisk);
+          v.setDemeSeasonality(seasonality);
+          v.setProbSusceptible(probSusceptible);
+          v.setFitness(seasonalFitness);
+        }
       }
     }
   }
@@ -491,17 +502,7 @@ public class HostPopulation {
       if (getI() > 0) {
         int index = getRandomI();
         Host h = infecteds.get(index);
-        Virus v = h.mutate();
-        Phenotype p = v.getPhenotype();
-        double averageRisk = getAverageRisk(p);
-        double seasonality = Parameters.getSeasonality(deme);
-        double probSusceptible = getPrS();
-        double seasonalFitness = averageRisk * seasonality * probSusceptible;
-
-        v.setAverageInfectionRisk(averageRisk);
-        v.setDemeSeasonality(seasonality);
-        v.setProbSusceptible(probSusceptible);
-        v.setFitness(seasonalFitness);
+        h.mutate();
       }
     }
   }
