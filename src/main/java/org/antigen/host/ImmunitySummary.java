@@ -16,7 +16,7 @@ public class ImmunitySummary {
   }
 
   public double[] getCentroid() {
-    return centroid;
+    return centroid.clone();
   }
 
   public double getNaiveFraction() {
