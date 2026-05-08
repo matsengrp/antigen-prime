@@ -107,6 +107,10 @@ public class GeometricPhenotype10D implements Phenotype {
     return mutP;
   }
 
+  public double[] getCoordinates() {
+    return new double[] {traits[0], traits[1]};
+  }
+
   public String toString() {
     //		String fullString = String.format("%.4f,%.4f,%.4f,%.4f,%.4f,%.4f,%.4f,%.4f,%.4f,%.4f",
     // traits);

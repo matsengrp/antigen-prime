@@ -666,6 +666,33 @@ public class HostPopulation {
     }
   }
 
+  public ImmunitySummary getPopulationImmunitySummary(int n) {
+    double sumTraitA = 0.0;
+    double sumTraitB = 0.0;
+    int experiencedHosts = 0;
+    int naiveHosts = 0;
+
+    for (int i = 0; i < n; i++) {
+      Host h = getRandomHost();
+      double[] coords = h.getImmunityCoordinatesCentroid();
+      if (coords == null) {
+        naiveHosts++;
+      } else {
+        sumTraitA += coords[0];
+        sumTraitB += coords[1];
+        experiencedHosts++;
+      }
+    }
+
+    double[] avgCentroid =
+        experiencedHosts > 0
+            ? new double[] {sumTraitA / experiencedHosts, sumTraitB / experiencedHosts}
+            : new double[] {Double.NaN, Double.NaN};
+
+    double naiveFraction = (double) naiveHosts / n;
+    return new ImmunitySummary(avgCentroid, naiveFraction, n, experiencedHosts);
+  }
+
   public void printHostImmuneHistories(PrintStream stream, int n) {
     // first, print the contact rate
     stream.printf("contactRate:\t" + "%.4f\n", contactRate);

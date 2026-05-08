@@ -216,12 +216,52 @@ public class Simulation {
     }
   }
 
-  public void printHostImmuneHistories(PrintStream historyStream) {
-    // For each deme, print the name, and the immune histories of hosts
+  public void printPopulationImmunityCentroids(PrintStream historyStream, boolean writeHeader) {
+    if (writeHeader) {
+      historyStream.println("year,deme,ag1,ag2,naive_fraction,experienced_hosts");
+    }
+    double year = Parameters.day / 365.0;
+    double globalSumAg1 = 0.0;
+    double globalSumAg2 = 0.0;
+    int globalExperiencedHosts = 0;
+    int globalTotalSamples = 0;
+
     for (int i = 0; i < Parameters.demeCount; i++) {
-      HostPopulation hp = demes.get(i);
-      int n = Parameters.hostImmunitySamplesPerDeme[i];
-      hp.printHostImmuneHistories(historyStream, n);
+      int nSamples = Parameters.hostImmunitySamplesPerDeme[i];
+      ImmunitySummary summary = demes.get(i).getPopulationImmunitySummary(nSamples);
+      if (summary.hasValidCentroid()) {
+        historyStream.printf(
+            "%.4f,%s,%.6f,%.6f,%.4f,%d%n",
+            year,
+            Parameters.demeNames[i],
+            summary.getCentroid()[0],
+            summary.getCentroid()[1],
+            summary.getNaiveFraction(),
+            summary.getExperiencedHosts());
+        globalSumAg1 += summary.getCentroid()[0] * summary.getExperiencedHosts();
+        globalSumAg2 += summary.getCentroid()[1] * summary.getExperiencedHosts();
+      } else {
+        historyStream.printf(
+            "%.4f,%s,NaN,NaN,%.4f,%d%n",
+            year,
+            Parameters.demeNames[i],
+            summary.getNaiveFraction(),
+            summary.getExperiencedHosts());
+      }
+      globalExperiencedHosts += summary.getExperiencedHosts();
+      globalTotalSamples += summary.getTotalSampled();
+    }
+
+    if (globalExperiencedHosts > 0) {
+      historyStream.printf(
+          "%.4f,global,%.6f,%.6f,%.4f,%d%n",
+          year,
+          globalSumAg1 / globalExperiencedHosts,
+          globalSumAg2 / globalExperiencedHosts,
+          1.0 - (double) globalExperiencedHosts / globalTotalSamples,
+          globalExperiencedHosts);
+    } else {
+      historyStream.printf("%.4f,global,NaN,NaN,1.0000,%d%n", year, 0);
     }
   }
 
@@ -416,10 +456,11 @@ public class Simulation {
 
       File outDirs = new File(Parameters.outPath);
       outDirs.mkdirs();
-      File historyFile = new File("out.histories");
+      File historyFile = new File("out.histories.csv");
       historyFile.delete();
       historyFile.createNewFile();
       PrintStream historyStream = new PrintStream(historyFile);
+      boolean historiesHeaderWritten = false;
       File seriesFile = new File("out.timeseries");
       seriesFile.delete();
       seriesFile.createNewFile();
@@ -443,9 +484,8 @@ public class Simulation {
         // print immunity if needed
         if (Parameters.sampleHostImmunity
             && Parameters.day % (double) Parameters.printHostImmunityStep < Parameters.deltaT) {
-          // Test print
-          historyStream.printf("date:\t" + "%.2f\n", Parameters.day);
-          printHostImmuneHistories(historyStream);
+          printPopulationImmunityCentroids(historyStream, !historiesHeaderWritten);
+          historiesHeaderWritten = true;
         }
 
         if (getI() == 0) {
