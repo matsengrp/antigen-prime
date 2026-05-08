@@ -4,8 +4,6 @@ import static org.junit.Assert.*;
 
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
-import org.antigen.core.Parameters;
-import org.antigen.core.Simulation;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -73,8 +71,8 @@ public class TestSimulationImmunityBurnin {
   }
 
   /**
-   * Confirms that getDate() and absolute day/365 diverge before burnin, justifying the caller
-   * guard added to the simulation loop.
+   * Confirms that getDate() and absolute day/365 diverge before burnin, justifying the caller guard
+   * added to the simulation loop.
    */
   @Test
   public void testGetDateDiffersFromAbsoluteYearBeforeBurnin() {
