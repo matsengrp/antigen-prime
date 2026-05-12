@@ -227,13 +227,16 @@ public class Simulation {
     int globalExperiencedHosts = 0;
     int globalTotalSamples = 0;
 
+    boolean rawHeaderNeeded = writeHeader;
     for (int i = 0; i < Parameters.demeCount; i++) {
       int nSamples = Parameters.hostImmunitySamplesPerDeme[i];
       if (nSamples == 0) continue;
       HostPopulation hp = demes.get(i);
       List<Host> sampled = hp.sampleHosts(nSamples);
       ImmunitySummary summary = hp.getPopulationImmunitySummary(sampled);
-      hp.printHostImmuneHistories(rawStream, sampled);
+      hp.printHostImmuneHistoriesCsv(
+          rawStream, sampled, year, summary.getNaiveFraction(), rawHeaderNeeded);
+      rawHeaderNeeded = false;
 
       if (summary.hasValidCentroid()) {
         csvStream.printf(
@@ -468,7 +471,7 @@ public class Simulation {
       historyCsvFile.delete();
       historyCsvFile.createNewFile();
       PrintStream historyCsvStream = new PrintStream(historyCsvFile);
-      File historyRawFile = new File("out.histories");
+      File historyRawFile = new File("out.histories.raw.csv");
       historyRawFile.delete();
       historyRawFile.createNewFile();
       PrintStream historyRawStream = new PrintStream(historyRawFile);

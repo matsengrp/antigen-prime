@@ -29,7 +29,6 @@ public class HostPopulation {
 
   private int newContacts;
   private int newRecoveries;
-  private double contactRate;
 
   // construct population, using Virus v as initial infection
   public HostPopulation(int d) {
@@ -351,7 +350,6 @@ public class HostPopulation {
     // each infected makes I->S contacts on a per-day rate of beta * S/N
     double totalContactRate =
         getI() * getPrS() * Parameters.beta * Parameters.getSeasonality(deme) * Parameters.deltaT;
-    contactRate = totalContactRate;
     newContacts = Random.nextPoisson(totalContactRate);
   }
 
@@ -710,16 +708,54 @@ public class HostPopulation {
     return getPopulationImmunitySummary(sampleHosts(n));
   }
 
-  public void printHostImmuneHistories(PrintStream stream, List<Host> hosts) {
-    stream.printf("contactRate:\t%.4f\n", contactRate);
-    for (Host h : hosts) {
-      stream.print(name + ":");
-      h.printHistoryCoordinates(stream);
+  /**
+   * Writes per-infection rows to {@code stream} in long-format CSV.
+   *
+   * <p>One row is emitted per (host, infection) pair. Naive hosts produce no rows but still consume
+   * a sequential {@code host_id}. {@code naive_fraction} is repeated on every row as snapshot-level
+   * metadata.
+   *
+   * <p>Format: {@code year,deme,host_id,infection_index,ag1,ag2,naive_fraction}
+   *
+   * <p>Assumes {@code getCoordinates()} returns at least 2 elements; only ag1/ag2 are written
+   * regardless of phenotype dimensionality.
+   *
+   * @param stream output stream
+   * @param hosts sampled hosts for this snapshot/deme
+   * @param year burn-in-adjusted simulation year
+   * @param naiveFraction fraction of sampled hosts with empty immune history
+   * @param writeHeader if true, emit the CSV header line before data rows
+   */
+  public void printHostImmuneHistoriesCsv(
+      PrintStream stream,
+      List<Host> hosts,
+      double year,
+      double naiveFraction,
+      boolean writeHeader) {
+    if (writeHeader) {
+      stream.println("year,deme,host_id,infection_index,ag1,ag2,naive_fraction");
     }
-  }
-
-  public void printHostImmuneHistories(PrintStream stream, int n) {
-    printHostImmuneHistories(stream, sampleHosts(n));
+    int hostId = 0;
+    for (Host h : hosts) {
+      Phenotype[] history = h.getHistory();
+      for (int i = 0; i < history.length; i++) {
+        double[] coords = history[i].getCoordinates();
+        if (coords.length < 2) {
+          throw new IllegalStateException(
+              "Phenotype at host "
+                  + hostId
+                  + " infection "
+                  + i
+                  + " returned fewer than 2 coordinates (got "
+                  + coords.length
+                  + ")");
+        }
+        stream.printf(
+            "%.4f,%s,%d,%d,%.6f,%.6f,%.4f%n",
+            year, name, hostId, i, coords[0], coords[1], naiveFraction);
+      }
+      hostId++;
+    }
   }
 
   public void printHostPopulation(PrintStream stream) {

@@ -13,7 +13,7 @@ antigen-prime generates several output files that capture different aspects of t
 | `out.fasta`      | Virus sequences           | Sequence analysis, alignment, molecular evolution (GeometricSeq only)       |
 | `out.tree`       | Newick tree format        | Tree visualization in standard phylogenetic software                        |
 | `out.immunity`   | Final immunity landscape  | Population-level immunity snapshot at simulation end (optional)             |
-| `out.histories`  | Host immune histories     | Raw per-host immune coordinates for sampled hosts at each sampling interval (optional) |
+| `out.histories`  | Host immune histories     | Long-format CSV of per-host infection coordinates for sampled hosts at each sampling interval (optional) |
 | `out.histories.csv` | Population immunity centroids | Per-deme average antigenic position of most-recent infections (optional) |
 
 ## Core Output Files
@@ -145,7 +145,18 @@ Header format: `>seq{number}|{birth_time}|{fitness}`
 
 **Purpose:** Both files are written on the same schedule (`printHostImmunityStep`) from the **same sampled hosts**, so they form a coherent pair — the raw histories are the exact dataset used to compute the centroids.
 
-**`out.histories`** — raw per-host coordinates: for each sampling interval, prints the contact rate and the full immune history coordinates of every sampled host, grouped by deme.
+**`out.histories`** — long-format CSV of per-host infection coordinates. One row per (host, infection) pair; naive hosts produce no rows but are counted in `naive_fraction`. Columns:
+
+```
+year,deme,host_id,infection_index,ag1,ag2,naive_fraction
+```
+
+- `year`: burn-in-adjusted snapshot year
+- `deme`: deme name
+- `host_id`: sequential integer within each snapshot/deme block (not persistent across snapshots)
+- `infection_index`: position in the host's immune history (0 = oldest)
+- `ag1`, `ag2`: antigenic coordinates of that infection
+- `naive_fraction`: fraction of sampled hosts with empty immune history for this snapshot/deme (repeated per row as snapshot-level metadata)
 
 **`out.histories.csv`** — per-deme and global centroids: CSV with columns `year,deme,ag1,ag2,naive_fraction,experienced_hosts`. One row per deme plus a `global` aggregate row. See the [immunity centroids guide](immunity-centroids.md) for full details.
 
