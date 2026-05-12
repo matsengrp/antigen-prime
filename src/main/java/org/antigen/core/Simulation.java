@@ -471,7 +471,7 @@ public class Simulation {
       historyCsvFile.delete();
       historyCsvFile.createNewFile();
       PrintStream historyCsvStream = new PrintStream(historyCsvFile);
-      File historyRawFile = new File("out.histories");
+      File historyRawFile = new File("out.histories.raw.csv");
       historyRawFile.delete();
       historyRawFile.createNewFile();
       PrintStream historyRawStream = new PrintStream(historyRawFile);

@@ -717,6 +717,9 @@ public class HostPopulation {
    *
    * <p>Format: {@code year,deme,host_id,infection_index,ag1,ag2,naive_fraction}
    *
+   * <p>Assumes {@code getCoordinates()} returns at least 2 elements; only ag1/ag2 are written
+   * regardless of phenotype dimensionality.
+   *
    * @param stream output stream
    * @param hosts sampled hosts for this snapshot/deme
    * @param year burn-in-adjusted simulation year
