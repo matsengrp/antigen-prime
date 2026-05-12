@@ -711,9 +711,9 @@ public class HostPopulation {
   /**
    * Writes per-infection rows to {@code stream} in long-format CSV.
    *
-   * <p>One row is emitted per (host, infection) pair. Naive hosts produce no rows but still
-   * consume a sequential {@code host_id}. {@code naive_fraction} is repeated on every row as
-   * snapshot-level metadata.
+   * <p>One row is emitted per (host, infection) pair. Naive hosts produce no rows but still consume
+   * a sequential {@code host_id}. {@code naive_fraction} is repeated on every row as snapshot-level
+   * metadata.
    *
    * <p>Format: {@code year,deme,host_id,infection_index,ag1,ag2,naive_fraction}
    *
@@ -739,8 +739,13 @@ public class HostPopulation {
         double[] coords = history[i].getCoordinates();
         if (coords.length < 2) {
           throw new IllegalStateException(
-              "Phenotype at host " + hostId + " infection " + i
-              + " returned fewer than 2 coordinates (got " + coords.length + ")");
+              "Phenotype at host "
+                  + hostId
+                  + " infection "
+                  + i
+                  + " returned fewer than 2 coordinates (got "
+                  + coords.length
+                  + ")");
         }
         stream.printf(
             "%.4f,%s,%d,%d,%.6f,%.6f,%.4f%n",

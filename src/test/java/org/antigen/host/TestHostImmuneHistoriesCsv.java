@@ -162,11 +162,25 @@ public class TestHostImmuneHistoriesCsv {
     // A phenotype returning fewer than 2 coordinates must fail loudly, not silently truncate.
     Phenotype zeroD =
         new Phenotype() {
-          public double riskOfInfection(Phenotype[] h) { return 0; }
-          public Phenotype mutate() { return this; }
-          public double distance(Phenotype p) { return 0; }
-          public double[] getCoordinates() { return new double[0]; }
-          public String toString() { return ""; }
+          public double riskOfInfection(Phenotype[] h) {
+            return 0;
+          }
+
+          public Phenotype mutate() {
+            return this;
+          }
+
+          public double distance(Phenotype p) {
+            return 0;
+          }
+
+          public double[] getCoordinates() {
+            return new double[0];
+          }
+
+          public String toString() {
+            return "";
+          }
         };
     Host h = new Host();
     h.addToHistory(zeroD);

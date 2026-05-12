@@ -234,7 +234,8 @@ public class Simulation {
       HostPopulation hp = demes.get(i);
       List<Host> sampled = hp.sampleHosts(nSamples);
       ImmunitySummary summary = hp.getPopulationImmunitySummary(sampled);
-      hp.printHostImmuneHistoriesCsv(rawStream, sampled, year, summary.getNaiveFraction(), rawHeaderNeeded);
+      hp.printHostImmuneHistoriesCsv(
+          rawStream, sampled, year, summary.getNaiveFraction(), rawHeaderNeeded);
       rawHeaderNeeded = false;
 
       if (summary.hasValidCentroid()) {
