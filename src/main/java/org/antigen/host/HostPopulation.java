@@ -29,7 +29,6 @@ public class HostPopulation {
 
   private int newContacts;
   private int newRecoveries;
-  private double contactRate;
 
   // construct population, using Virus v as initial infection
   public HostPopulation(int d) {
@@ -351,7 +350,6 @@ public class HostPopulation {
     // each infected makes I->S contacts on a per-day rate of beta * S/N
     double totalContactRate =
         getI() * getPrS() * Parameters.beta * Parameters.getSeasonality(deme) * Parameters.deltaT;
-    contactRate = totalContactRate;
     newContacts = Random.nextPoisson(totalContactRate);
   }
 
@@ -739,6 +737,11 @@ public class HostPopulation {
       Phenotype[] history = h.getHistory();
       for (int i = 0; i < history.length; i++) {
         double[] coords = history[i].getCoordinates();
+        if (coords.length < 2) {
+          throw new IllegalStateException(
+              "Phenotype at host " + hostId + " infection " + i
+              + " returned fewer than 2 coordinates (got " + coords.length + ")");
+        }
         stream.printf(
             "%.4f,%s,%d,%d,%.6f,%.6f,%.4f%n",
             year, name, hostId, i, coords[0], coords[1], naiveFraction);

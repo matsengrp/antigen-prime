@@ -8,6 +8,7 @@ import java.util.Arrays;
 import java.util.List;
 import org.antigen.core.Parameters;
 import org.antigen.phenotype.GeometricPhenotype;
+import org.antigen.phenotype.Phenotype;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -154,5 +155,22 @@ public class TestHostImmuneHistoriesCsv {
     assertEquals("0", lines[0].split(",")[2]);
     assertEquals("1", lines[1].split(",")[2]);
     assertEquals("2", lines[2].split(",")[2]);
+  }
+
+  @Test(expected = IllegalStateException.class)
+  public void testBoundsGuardThrowsOnSubDimensionalPhenotype() {
+    // A phenotype returning fewer than 2 coordinates must fail loudly, not silently truncate.
+    Phenotype zeroD =
+        new Phenotype() {
+          public double riskOfInfection(Phenotype[] h) { return 0; }
+          public Phenotype mutate() { return this; }
+          public double distance(Phenotype p) { return 0; }
+          public double[] getCoordinates() { return new double[0]; }
+          public String toString() { return ""; }
+        };
+    Host h = new Host();
+    h.addToHistory(zeroD);
+    ByteArrayOutputStream baos = new ByteArrayOutputStream();
+    population.printHostImmuneHistoriesCsv(new PrintStream(baos), List.of(h), 5.0, 0.0, false);
   }
 }
