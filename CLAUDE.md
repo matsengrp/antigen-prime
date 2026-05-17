@@ -128,3 +128,99 @@ mvn compile exec:java -Dexec.mainClass="org.antigen.Antigen"
 - Memory management is critical for large simulations
 - JUnit test framework configured - tests located in `src/test/java/`
 - Java 16 compatible for deployment on remote systems
+
+---
+
+## Repository Ecosystem
+
+This repo is one of three that work together. Sibling repos live at `../antigen-experiments` and `../antigen-forecasting`.
+
+| Repo | Role |
+|------|------|
+| **antigen-prime** (this repo) | Simulation engine — produces all raw output files |
+| **antigen-experiments** | Run drivers, SLURM submission, and processing scripts that reduce raw outputs |
+| **antigen-forecasting** | Downstream analysis — variant assignment, growth rate modeling, forecasting |
+
+**Data flow:** `antigen-prime` → `antigen-experiments` → `antigen-forecasting`
+
+---
+
+### Output File Contracts
+
+#### `run-out.tips` — sampled viral tips (CSV, `output/` subdir, `geometricSeq` phenotype)
+
+| Column | Type | Description |
+|--------|------|-------------|
+| `name` | string | Unique virus identifier |
+| `year` | double | Birth year (burn-in-adjusted) |
+| `trunk` | int | 1 if on phylogenetic trunk, else 0 |
+| `tip` | int | 1 if a sampled tip, else 0 |
+| `mark` | int | 1 if marked for analysis window |
+| `location` | int | Deme index (0-based; maps to `demeNames` in parameters) |
+| `layout` | double | Vertical layout position for tree visualization |
+| `nucleotideSequence` | string | Full nucleotide sequence |
+| `ag1` | double | First antigenic coordinate |
+| `ag2` | double | Second antigenic coordinate |
+| `epitopeMutationCount` | int | Cumulative epitope mutations from root |
+| `nonepitopeMutationCount` | int | Cumulative non-epitope mutations from root |
+| `lowEpitopeMutationCount` | int | Mutations at low-fitness epitope sites |
+| `highEpitopeMutationCount` | int | Mutations at high-fitness epitope sites |
+| `fitness` | double | Virus fitness score |
+| `averageInfectionRisk` | double | Mean infection risk across sampled hosts |
+| `probSusceptible` | double | Fraction of population susceptible |
+| `demeSeasonality` | double | Seasonal multiplier for virus's deme at sampling time |
+
+#### `out.timeseries` — epidemiological time series (TSV)
+
+Global columns, then per-deme columns repeated for each deme (prefixed by deme name, e.g. `northN`).
+
+| Column | Type | Description |
+|--------|------|-------------|
+| `date` | double | Simulation day (burn-in-adjusted year) |
+| `diversity` | double | Global phylogenetic diversity |
+| `tmrca` | double | Time to most recent common ancestor (years) |
+| `netau` | double | Effective population size × generation time |
+| `serialInterval` | double | Mean serial interval (days) |
+| `antigenicDiversity` | double | Mean pairwise antigenic distance among tips |
+| `totalN/S/I/R` | int | Global host counts |
+| `totalCases` | int | New infections since last print step |
+| `{deme}N/S/I/R/Cases` | int | Per-deme equivalents of the above |
+| `{deme}Diversity/Tmrca/…` | double | Per-deme equivalents of the phylogenetic stats |
+
+#### `out.summary` — run-level summary statistics (TSV, key-value format)
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `endDate` | double | Final simulation year |
+| `diversity` | double | Time-averaged phylogenetic diversity |
+| `tmrca` | double | Time-averaged TMRCA |
+| `netau` | double | Time-averaged Ne×tau |
+| `serialInterval` | double | Time-averaged serial interval |
+| `antigenicDiversity` | double | Time-averaged antigenic diversity |
+| `N/S/I/R` | double | Time-averaged host compartment sizes |
+| `cases` | double | Time-averaged new infections per step |
+
+#### `out.histories.csv` — population immunity centroids (CSV)
+
+| Column | Type | Description |
+|--------|------|-------------|
+| `year` | double | Burn-in-adjusted snapshot year |
+| `deme` | string | Deme name (or `"global"`) |
+| `ag1` | double | Mean ag1 of experienced hosts (centroid) |
+| `ag2` | double | Mean ag2 of experienced hosts (centroid) |
+| `naive_fraction` | double | Fraction of sampled hosts with no immune history |
+| `experienced_hosts` | int | Number of sampled hosts with ≥1 infection |
+
+#### `out.histories.raw.csv` — per-host per-infection records (CSV)
+
+Written every `printHostImmunityStep` days after burnin. Processed by `antigen-experiments/scripts/subsample_histories.py`.
+
+| Column | Type | Description |
+|--------|------|-------------|
+| `year` | double | Burn-in-adjusted snapshot year |
+| `deme` | string | Deme name |
+| `host_id` | int | Sequential host index within this snapshot/deme block (resets each snapshot) |
+| `infection_index` | int | Position in immune history (0 = oldest infection) |
+| `ag1` | double | Antigenic coordinate 1 of this infection |
+| `ag2` | double | Antigenic coordinate 2 of this infection |
+| `naive_fraction` | double | Fraction of sampled hosts with empty immune history (repeated per row) |
