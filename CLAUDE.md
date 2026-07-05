@@ -127,7 +127,7 @@ mvn compile exec:java -Dexec.mainClass="org.antigen.Antigen"
 - Project uses phenotype abstraction for different evolution models
 - Memory management is critical for large simulations
 - JUnit test framework configured - tests located in `src/test/java/`
-- Java 16 compatible for deployment on remote systems
+- Java 11 compatible for deployment on remote systems
 
 ---
 
